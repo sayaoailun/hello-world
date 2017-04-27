@@ -150,7 +150,7 @@ password=mysql
 | minIdle     | 1                                        |
 | maxWait     | 60000                                    |
 
-​	上面两种方式 （PAASEnvironmentPostProcessor、PAASPropertyPlaceholderConfigurer）不可以同时使用，否则可能会发生重复读取，请根据项目情况选择一种方式使用。
+上面两种方式 （PAASEnvironmentPostProcessor、PAASPropertyPlaceholderConfigurer）不可以同时使用，否则可能会发生重复读取，请根据项目情况选择一种方式使用。
 
 引入配置后使用的方式有多种：
 
