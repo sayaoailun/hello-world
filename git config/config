@@ -1,0 +1,5 @@
+Host mygithub
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/github/id_rsa
+  IdentitiesOnly yes
