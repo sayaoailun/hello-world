@@ -1,15 +1,21 @@
 package com.dc.zookeeper;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Id;
 import org.apache.zookeeper.data.Stat;
+import org.apache.zookeeper.server.auth.DigestAuthenticationProvider;
 
 public class Center implements Watcher {
 	
@@ -18,6 +24,7 @@ public class Center implements Watcher {
 	public Center(String address) {
 		try {
 			zk = new ZooKeeper(address, 3000, this);
+			zk.addAuthInfo("digest", "admin:admin".getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -46,12 +53,17 @@ public class Center implements Watcher {
 	public void setData() {
 		try {
 			Stat stat = zk.exists("/config", false);
+			List<ACL> acls = new ArrayList<>();
+			acls.addAll(Ids.READ_ACL_UNSAFE);
+			Id admin_id = new Id("digest", DigestAuthenticationProvider.generateDigest("admin:admin"));
+			ACL acl_admin = new ACL(ZooDefs.Perms.ALL, admin_id);
+			acls.add(acl_admin);
 			if (stat == null) {
-				zk.create("/config", null, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				zk.create("/config", null, acls, CreateMode.PERSISTENT);
 			}
 			stat = zk.exists("/config/app1", false);
 			if (stat == null) {
-				zk.create("/config/app1", "k=v".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				zk.create("/config/app1", "k=v".getBytes(), acls, CreateMode.PERSISTENT);
 			} else {
 				zk.setData("/config/app1", "k=v".getBytes(), -1);
 			}
@@ -59,6 +71,9 @@ public class Center implements Watcher {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
